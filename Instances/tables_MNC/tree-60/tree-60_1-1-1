@@ -1,0 +1,13 @@
+0               #tmLmt
+0               #itDADLmt
+0               #itADLmt
+20              #no
+1.5             #totTm
+0.8             #lastADTm
+3.4             #itDAD
+1.0             #avItADGoal
+11.7            #itADOpt
+18              #zeros
+2               #nonZeros
+3.4             #avRelGain
+4.5             #maxRelGain
