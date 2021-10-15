@@ -1,6 +1,5 @@
 from pandas.core.indexing import need_slice
 from DefendAttackDefend import MCN
-import pytest
 from helpers import get_graph_data, get_paper_stats, get_filename, get_filename2
 from data import graph_base_name, Ns, Density, BudgetSet, Numbers
 import pandas as pd
@@ -8,7 +7,7 @@ from datetime import datetime
 import os
 
 
-PATH = "/Users/lewis/Uni/21.2/math4202/assignment/project/results/"
+PATH = "./results"
 
 def export_results(Results, graph_name):
     """
@@ -16,7 +15,7 @@ def export_results(Results, graph_name):
     """
     data = pd.DataFrame(Results, index=Numbers)
     timestamp = str(datetime.now()).replace(" ", "_").split(".")[0]
-    timestamp = timestamp.replace("/","-")
+    timestamp = timestamp.replace("/","-").replace(":","-")
     path=PATH+f"/{graph_name}/"
     if not os.path.exists(path):
         os.mkdir(path)
@@ -78,19 +77,25 @@ def test_MCN_budgets(Budgets):
     for N in Ns:
         for dens in Density:
             graph_name = get_filename2(N, dens, Budgets)
-            path=f"/Users/lewis/Uni/21.2/math4202/assignment/project/Instances/tables_MNC/{graph_name}"
+            path=f"./Instances/tables_MNC/{graph_name}"
+
+            print(path)
+
             if os.path.exists(path):
                 Data = test_MCN_all_nums(N,dens,Budgets)
                 export_results(Data, graph_name)
-    print(f"-->* Testing of budgets {Budgets} complete")
+    return
     
 
 
 # ------------------------------------------------------------------------ #
 
 def main():
-    #test_MCN_budgets([1,1,1])
-    test_MCN_all_nums(100,5,[2,2,2])
+    test_MCN_budgets([1,1,1])
+    
+    #test_MCN_all_nums(20,5,[2,2,2])
+
+
 
 if __name__ == "__main__":
     main()

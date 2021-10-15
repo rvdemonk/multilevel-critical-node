@@ -6,6 +6,7 @@ from data import *
 
 
 def get_filename(N, density, Omega, Phi, Lambda):
+    # takes budgets as three integers
     density = f"0{density}" if int(density) < 10 else density
     return f"rndgraph{density}-{N}_{Omega}-{Phi}-{Lambda}"
 
