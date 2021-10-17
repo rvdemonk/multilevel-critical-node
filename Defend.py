@@ -16,6 +16,7 @@ def Defend(Nodes, Edges, Infected, Lambda):
     Attacked = {v : 1 if v in Infected else 0 for v in Nodes}
 
     D.setObjective(quicksum(A[v] for v in Nodes), GRB.MAXIMIZE)
+    
     # Constraints
     DefendBudget = D.addConstr(quicksum(X[v] for v in Nodes) <= Lambda)
     ViralSpread = {v: D.addConstr(A[v] <= 1 - Attacked[v]) for v in Nodes}

@@ -7,6 +7,7 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     A = Model("AttackDefend")
     A.setParam('OutputFlag',0)
     A.setParam("NonConvex", 2) # for McCormick evenelope
+
     # Variables
     y = {v: A.addVar(vtype=GRB.BINARY) for v in Nodes}
     h = {v: A.addVar(lb=0) for v in Nodes}
@@ -14,7 +15,7 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     p = A.addVar(lb=0)
     gamma = {v: A.addVar(lb=0) for v in Nodes}
 
-    A.setObjective(Lambda * p + quicksum(gamma[v] for v in Nodes), GRB.MINIMIZE)
+    A.setObjective(Lambda*p + quicksum(gamma[v] for v in Nodes), GRB.MINIMIZE)
 
     # Constraints
     AttackBudget = A.addConstr(quicksum(y[v] for v in Nodes) <= Phi)
@@ -34,17 +35,10 @@ def AP(Nodes, Edges, Phi, Lambda, target):
 
     Constr3 = {
         v: A.addConstr(
-            gamma[v] + len(Nodes) * y[v] - h[v] 
+            gamma[v] + len(Nodes)*y[v] - h[v] 
             >= 0) 
             for v in Nodes}
 
-    # Sign constraits
-    A.addConstr(p >= 0)
-    for v in Nodes:
-        A.addConstr(h[v] >= 0)
-        A.addConstr(gamma[v] >= 0)
-    for (u, v) in Edges:
-        A.addConstr(q[u, v] >= 0)
 
     ###### AP Subroutine ######
     best = len(Nodes)
@@ -53,19 +47,19 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     CutsAdded = 0
     X_best = []
 
-    while True:
-        A.optimize()
-        if A.status == GRB.INFEASIBLE:
-            break
+    A.optimize()
+    while A.status == GRB.INFEASIBLE:
 
         I = set(v for v in Nodes if y[v].x > 0.9)
-        Saved, Defended = Defend(Nodes, Edges, Infected=I, Lambda=Lambda)
         value = A.objVal
-
         if value <= target - 1:
             return (I, "goal", [])
+        
+        Saved, Defended = Defend(Nodes, Edges, Infected=I, Lambda=Lambda)
+
         if len(Saved) <= target - 1:
             return (I, "goal", Defended)
+
         if len(Saved) < best:
             best = len(Saved)
             I_best = I
