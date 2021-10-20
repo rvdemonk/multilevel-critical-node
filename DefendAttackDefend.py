@@ -87,5 +87,7 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
             best = DAP.objVal    
             cnt += 1
     print(f"Solution: {DAP.objVal} nodes saved")
+
+    return DAP, 
     ## ----------------------------------------------------------------- ##
 

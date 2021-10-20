@@ -68,3 +68,11 @@ def plot_graph(nodes, edges, infected=None, saved=None):
     G.add_edges_from(edges)
     nx.draw(G, with_labels=True, font_weight="bold")
     plt.show()
+
+
+def get_mcn_results(N, density, Budgets):
+    """
+    Returns the results of a rnd graph instance for all numbers of that
+    graph as a pandas dataframe, indexed by the graph instance number (1-20)
+    """
+    graphname = get_filename2(N, density)
