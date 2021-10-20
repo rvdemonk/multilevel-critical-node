@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 
 
-RESULTS_PATH = "./results"
+RESULTS_PATH = "./results1"
 
 def export_results(Results, graph_name):
     """
@@ -32,10 +32,10 @@ def test_MCN_single(N, number, density, Budgets):
     nodes, edges = get_graph_data(number, N, density, Omega, Phi, Lambda)
     paper_solution = get_paper_stats(number, N, density, Omega, Phi, Lambda)
     
-    print(f"Testing {graph_name}")
+    print(f"Testing {graph_name}_{number}")
     my_solution = MCN(nodes, edges, Omega, Phi, Lambda)
 
-    if my_solution["fail"] or 'no' in paper_solution["fail"]:
+    if my_solution["fail"] or 'yes' in paper_solution["fail"]:
         results = {
         "graph_name": graph_name+f"_{number}",
         "imp_failed": my_solution["fail"] == True,
@@ -62,6 +62,35 @@ def test_MCN_single(N, number, density, Budgets):
             "paper_Z_sol": paper_solution["Z_sol"]
             }   
     return results
+
+def test_MCN_single2(N, number, density, Budgets):
+    Omega, Phi, Lambda = Budgets[0], Budgets[1], Budgets[2]
+    graph_name = get_filename(N, density, Omega, Phi, Lambda)
+    nodes, edges = get_graph_data(number, N, density, Omega, Phi, Lambda)
+    og_sol = get_paper_stats(number, N, density, Omega, Phi, Lambda)
+    print(f"Testing {graph_name}_{number}")
+    my_sol = MCN(nodes, edges, Omega, Phi, Lambda) 
+
+    results = {}
+    results['graph name'] = graph_name
+    results['og fail'] = 0
+    results['v2 fail'] = 0
+    results['answers match'] = 0
+    results['v2 faster'] = 0
+    results['og time'] = 0
+    results['v2 time'] = 0
+    results['time diff'] = results['v2 time'] - results['og time']
+    results['og obj'] = 0
+    results['v2 obj'] = 0
+    results['og X'] = 0
+    results['v2 X'] = 0
+    results['og Y'] = 0
+    results['v2 Y'] = 0
+    results['og Z'] = 0
+    results['v2 Z'] = 0
+
+
+    return
 
 
 def test_MCN_all_nums(N, density, Budgets):
@@ -97,7 +126,7 @@ def test_MCN_budgets(Budgets):
 def main():
     #test_MCN_budgets([2,2,2])
     
-    test_MCN_all_nums(20,5,[2,2,2])
+    test_MCN_all_nums(40,5,[2,2,2])
 
 
 

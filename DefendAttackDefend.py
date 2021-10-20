@@ -37,26 +37,27 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
         #Nodes_D = set(Nodes) - D
         Nodes_D = [v for v in Nodes if v not in D]
         Edges_D = [edge for edge in Edges if edge[0] not in D and edge[1] not in D]
-        Y_opt, status, Protected = AP(Nodes_D, Edges_D, Phi, Lambda, target)
-        Y_opt_vector = [1 if v in Y_opt else 0 for v in Nodes]
+        
+        Y_opt_set, status, Protected = AP(Nodes_D, Edges_D, Phi, Lambda, target)
+
         if status == "optimal":
             # there is no attack that results in less nodes saved
             endTime = time.time()
             output["total_time"] = round(endTime-startTime, 3)
             output["fail"] = False
-            output["opt_sol"] = int(best)
+            output["opt_sol"] = DAP.objVal
             output["opt_vac"] = D
-            output["opt_attack"] = Y_opt
+            output["opt_attack"] = Y_opt_set
             output["opt_protect"] = Protected
             output["num_iterations"] = cnt
             return output
 
         elif status == "goal":
-            # there exists an attack that results in less than target
-            # nodes saved, ie a better attack, then add the attack
-            # vector to Q
-            Q.append(Y_opt) # add new optimal attack to attack scenarios
-            # 1lvMip_Q variables corresponding to Y_opt_incumbent
+            # there exists a better attack vector
+            Y = [1 if v in Y_opt_set else 0 for v in Nodes]
+            Q.append(Y) # add new optimal attack to attack scenarios
+
+            # initialize variables corresponding to new Y-opt scenario
             X_y.append(
                 {v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes}
             )
@@ -70,9 +71,8 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
             Constr3 = DAP.addConstr(quicksum(X_y[cnt][v] for v in Nodes) <= Lambda)  
 
             ### problem: key error with Y_opt, shortens to not incude vaxxed nodes
-
             Constr4 = [DAP.addConstr(
-                    A_y[cnt][v] <= 1 + Z[v] - Y_opt_vector[v-1]
+                    A_y[cnt][v] <= 1 + Z[v] - Y[v-1]
                     ) 
                     for v in Nodes]
 
@@ -86,5 +86,6 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
             D = [v for v in Nodes if Z[v].x > 0.9]
             best = DAP.objVal    
             cnt += 1
+    print(f"Solution: {DAP.objVal} nodes saved")
     ## ----------------------------------------------------------------- ##
 
