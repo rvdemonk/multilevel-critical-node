@@ -42,7 +42,7 @@ def AP(Nodes, Edges, Phi, Lambda, target):
 
     ###### AP Subroutine ######
     best = len(Nodes)
-    I_best = set()
+    Attack_best = set()
     status = 0
     CutsAdded = 0
     X_best = []
@@ -51,27 +51,28 @@ def AP(Nodes, Edges, Phi, Lambda, target):
         A.optimize()
         if A.status == GRB.INFEASIBLE:
             break
-        I = set(v for v in Nodes if y[v].x > 0.9)
+
+        Infected = set(v for v in Nodes if y[v].x > 0.9)
         value = A.objVal
 
         if value <= target - 1:
-            return (I, "goal", [])
+            return (Infected, "goal", [])
         
-        saved, defended = Defend(Nodes, Edges, Infected=I, Lambda=Lambda)
+        Saved, Defended = Defend(Nodes, Edges, Infected=Infected, Lambda=Lambda)
 
-        if len(saved) <= target - 1:
-            return (I, "goal", defended)
+        if len(Saved) <= target - 1:
+            return (Infected, "goal", Defended)
 
-        if len(saved) < best:
-            best = len(saved)
-            I_best = I
-            X_best = defended
+        if len(Saved) < best:
+            best = len(Saved)
+            Attack_best = Infected
+            X_best = Defended
 
         # Add cut
-        A.addConstr(quicksum(y[v] for v in saved) >= 1)
+        A.addConstr(quicksum(y[v] for v in Saved) >= 1)
         CutsAdded += 1
 
-    return I_best, "optimal", X_best
+    return Attack_best, "optimal", X_best
 
 
 

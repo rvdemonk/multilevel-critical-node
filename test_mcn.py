@@ -24,46 +24,6 @@ def export_results(Results, graph_name):
 
 
 def test_MCN_single(N, number, density, Budgets):
-    """
-    Tests the MCN against the results of the original paper.
-    """
-    Omega, Phi, Lambda = Budgets[0], Budgets[1], Budgets[2]
-    graph_name = get_filename(N, density, Omega, Phi, Lambda)
-    nodes, edges = get_graph_data(number, N, density, Omega, Phi, Lambda)
-    paper_solution = get_paper_stats(number, N, density, Omega, Phi, Lambda)
-    
-    print(f"Testing {graph_name}_{number}")
-    my_solution = MCN(nodes, edges, Omega, Phi, Lambda)
-
-    if my_solution["fail"] or 'yes' in paper_solution["fail"]:
-        results = {
-        "graph_name": graph_name+f"_{number}",
-        "imp_failed": my_solution["fail"] == True,
-        "paper_fail": paper_solution["fail"],
-        }
-    else:
-        results = {
-            "graph_name": graph_name+f"_{number}",
-            "imp_failed": my_solution["fail"] == True,
-            "paper_fail": paper_solution["fail"],
-            "answers_match": "yes" if my_solution["opt_sol"] == paper_solution["solution"] else "NO",
-            "Z_sols_match": my_solution["opt_vac"] == paper_solution["Z_sol"],
-            "improved_time": my_solution["total_time"] < paper_solution["time"],
-            "imp_time": my_solution["total_time"],
-            "paper_time": paper_solution["time"],
-            "time_difference": round(my_solution["total_time"] - paper_solution["time"], 3),
-            "imp_obj": my_solution["opt_sol"],
-            "paper_obj": paper_solution["solution"],  
-            "imp_X_sol": my_solution["opt_protect"],
-            "paper_X_sol": paper_solution["X_sol"],
-            "imp_Y_sol": my_solution["opt_attack"],
-            "paper_Y_sol": paper_solution["Y_sol"],
-            "imp_Z_sol": my_solution["opt_vac"],
-            "paper_Z_sol": paper_solution["Z_sol"]
-            }   
-    return results
-
-def test_MCN_single2(N, number, density, Budgets):
     Omega, Phi, Lambda = Budgets[0], Budgets[1], Budgets[2]
     graph_name = get_filename(N, density, Omega, Phi, Lambda)
     nodes, edges = get_graph_data(number, N, density, Omega, Phi, Lambda)
@@ -88,6 +48,7 @@ def test_MCN_single2(N, number, density, Budgets):
     results['v2 Y'] = 0
     results['og Z'] = 0
     results['v2 Z'] = 0
+    results['og last ']
 
 
     return

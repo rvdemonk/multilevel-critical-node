@@ -1,93 +1,80 @@
+"""
+@lewisthompson
+Attempt at improving MCN algorithm
+ - additional cut added: 
+"""
 from gurobipy import *
 from AttackDefend import AP
 import time
 
-
 def MCN(Nodes, Edges, Omega, Phi, Lambda):
     startTime = time.time()
-    MAX_ITER = 50
-    output = {}
+    MAX_ITERATIONS = 50
 
-    DAP = Model("DefendAttackDefend")
+    DAP = Model("ProtectAttackDefend")
     DAP.setParam('OutputFlag',0)
 
-    # global variables
-    Z = {v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes} # vaccinated
+    # Global variables
+    Z = {v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes}
     delta = DAP.addVar()
+
     DAP.setObjective(delta, GRB.MAXIMIZE)
-    # budget constraint
-    VaccBudget = DAP.addConstr(quicksum(Z[v] for v in Nodes)<=Omega)
 
-    ### MCN routine ###
-    N = len(Nodes)
-    D = [] # set of vaccinated nodes
-    Q = [] # list of sets of attacked nodes
-    best = len(Nodes) # start with all nodes saved
-    A_y = []
+    ProtBudget = DAP.addConstr(quicksum(Z[v] for v in Nodes)<=Omega)
+
+    #--- MCN routine ---#
+    count = 0
+    OUTPUT = {} 
+    best_saved = len(Nodes) # start with every node saved
+    Protected = set()
+    Q = [] # stores attack vectors
     X_y = []
-    cnt = 0
-    
+    A_y = []
     while True:
-        print(f"...Beginning iteration {cnt}")
-        if cnt > MAX_ITER:
-            output["fail"] = True
-            return output
-        # removed vaxxed nodes from attacker target
-        target = best - len(D)
-        #Nodes_D = set(Nodes) - D
-        Nodes_D = [v for v in Nodes if v not in D]
-        Edges_D = [edge for edge in Edges if edge[0] not in D and edge[1] not in D]
+        print(f"iteration {count}...")
+        if count > MAX_ITERATIONS:
+            OUTPUT['fail'] = True
+            return OUTPUT
+
+        attack_target = best_saved - len(Protected)
+        Nodes_reduced = [v for v in Nodes if v not in Protected]
+        Edges_reduced = [e for e in Edges if e[0] not in Protected and e[1] not in Protected]
         
-        Y_opt_set, status, Protected = AP(Nodes_D, Edges_D, Phi, Lambda, target)
+        # Find an attack against unprotected nodes that results in less 
+        # than attack_target nodes saved
+        Attack_incumb, status, Defend_incumb = \
+            AP(Nodes_reduced, Edges_reduced, Phi, Lambda, attack_target)
 
-        if status == "optimal":
-            # there is no attack that results in less nodes saved
-            endTime = time.time()
-            output["total_time"] = round(endTime-startTime, 3)
-            output["fail"] = False
-            output["opt_sol"] = DAP.objVal
-            output["opt_vac"] = D
-            output["opt_attack"] = Y_opt_set
-            output["opt_protect"] = Protected
-            output["num_iterations"] = cnt
-            return output
+        if "goal" in status:
+            # attack found that cripples more nodes
+            # add attack to Q
+            Q.append(Attack_incumb)
+            Y = [1 if v in Attack_incumb else 0 for v in Nodes]
+            X_y.append({v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes})
+            A_y.append({v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes})
 
-        elif status == "goal":
-            # there exists a better attack vector
-            Y = [1 if v in Y_opt_set else 0 for v in Nodes]
-            Q.append(Y) # add new optimal attack to attack scenarios
+            c1 = DAP.addConstr(delta <= quicksum(A_y[count][v] for v in Nodes))
+            c3 = DAP.addConstr(quicksum(X_y[count][v] for v in Nodes) <= Lambda)
+            c4 = [DAP.addConstr(A_y[count][v]<=1+Z[v]-Y[v]) for v in Nodes] 
+            c5 = [DAP.addConstr(A_y[count][j]<=A_y[count][i]+X_y[count][j]+Z[j]) for (i,j) in Edges]
 
-            # initialize variables corresponding to new Y-opt scenario
-            X_y.append(
-                {v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes}
-            )
-            A_y.append(
-                {v: DAP.addVar(lb=0, ub=1) for v in Nodes}
-            )
-            # constraints corresponding to attack scenario y_opt_incumbent
-            # constraint names correspond to order presented in 1lvMIP model
-            Constr1 = DAP.addConstr(delta <= quicksum(A_y[cnt][v] for v in Nodes)) 
-
-            Constr3 = DAP.addConstr(quicksum(X_y[cnt][v] for v in Nodes) <= Lambda)  
-
-            ### problem: key error with Y_opt, shortens to not incude vaxxed nodes
-            Constr4 = [DAP.addConstr(
-                    A_y[cnt][v] <= 1 + Z[v] - Y[v-1]
-                    ) 
-                    for v in Nodes]
-
-            Constr5 = [DAP.addConstr(
-                    A_y[cnt][v] <= A_y[cnt][u] + X_y[cnt][v] + Z[v]
-                    )
-                    for (u,v) in Edges]
-            
-            # solve model -> (D, best)
+            # Solve model for Protected nodes and objVal
             DAP.optimize()
-            D = [v for v in Nodes if Z[v].x > 0.9]
-            best = DAP.objVal    
-            cnt += 1
-    print(f"Solution: {DAP.objVal} nodes saved")
+            Protected = set(v for v in Nodes if Z[v].x>0.9)
+            best_saved = DAP.objVal
+            count+=1
 
-    return DAP, 
-    ## ----------------------------------------------------------------- ##
+        elif "optimal" in status:
+            # the optimal attack has been found and vaccinated against
+            OUTPUT['total time'] = time.time() - startTime
+            OUTPUT['fail'] = False
+            OUTPUT['objVal'] = DAP.objVal
+            OUTPUT['Z opt'] = Protected
+            OUTPUT['Y opt'] = Attack_incumb
+            OUTPUT['X opt'] = Defend_incumb
+            OUTPUT['iterations'] = count
+            return OUTPUT
 
+        else:
+            print("!!! Error has occurred !!!")
+    #------------------------------------------------------------------------#
