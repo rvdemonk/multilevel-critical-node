@@ -12,8 +12,8 @@ def test_AP_functionality(density, N, number, Omega, Phi, Lambda):
     return I, status
 
 
-I, status = test_AP_functionality(5, 20, "001", 2,2,2)
-Infected_nodes = [i+1 for i in range(len(I)) if I[i] > 0.9]
+I, status = test_AP_functionality(5, 20, "001", 2, 2, 2)
+Infected_nodes = [i + 1 for i in range(len(I)) if I[i] > 0.9]
 print(I)
 print(Infected_nodes)
 print("Status: ", status)

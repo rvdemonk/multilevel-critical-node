@@ -65,5 +65,6 @@ def AP(Nodes, Edges, Phi, Lambda, target):
         # Might have to restructure entire file to add this cut
     return (I_best, "opt")
 
+
 APmodel = rlxAP(nodes_, edges_, 2, 2)
 print(APmodel.status)

@@ -37,5 +37,3 @@ def test_defend_random_attack():
     saved, protected = Protect(nodes_, edges_, rand_attack, Lambda)
     print("Saved: ", saved)
     print("Protected: ", protected)
-
-

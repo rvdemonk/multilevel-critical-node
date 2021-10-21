@@ -10,12 +10,13 @@ def get_filename(N, density, Omega, Phi, Lambda):
     density = f"0{density}" if int(density) < 10 else density
     return f"rndgraph{density}-{N}_{Omega}-{Phi}-{Lambda}"
 
+
 def get_filename2(N, density, Budgets):
     # Takes bugdets as a list instead of three integers
     density = f"0{density}" if int(density) < 10 else density
     Omega, Phi, Lambda = Budgets
     return f"rndgraph{density}-{N}_{Omega}-{Phi}-{Lambda}"
-    
+
 
 def get_paper_stats(number, N, density, Omega, Phi, Lambda):
     """
@@ -29,7 +30,8 @@ def get_paper_stats(number, N, density, Omega, Phi, Lambda):
         with open(folder + name + "/" + name + "_" + number) as searchfile:
             for line in searchfile:
                 if "#opt" in line:
-                    stats["solution"] = int(line.split(" ")[0])
+                    if "optDA-AD" not in line:
+                        stats["solution"] = int(line.split(" ")[0])
                 if "#totTm" in line:
                     stats["time"] = float(line.split(" ")[0])
                 if "#fail" in line:
@@ -40,6 +42,8 @@ def get_paper_stats(number, N, density, Omega, Phi, Lambda):
                     stats["Y_sol"] = eval(line.split(" = ")[1])
                 if "X_dad" in line:
                     stats["X_sol"] = eval(line.split(" = ")[1])
+                if "lastADTm" in line:
+                    stats["last AD time"] = float(line.split(" ")[0])
     else:
         raise Exception(f"no graph with name {name} in folder {folder+name}")
     return stats
@@ -70,9 +74,3 @@ def plot_graph(nodes, edges, infected=None, saved=None):
     plt.show()
 
 
-def get_mcn_results(N, density, Budgets):
-    """
-    Returns the results of a rnd graph instance for all numbers of that
-    graph as a pandas dataframe, indexed by the graph instance number (1-20)
-    """
-    graphname = get_filename2(N, density)

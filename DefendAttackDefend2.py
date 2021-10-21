@@ -49,14 +49,17 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
             # attack found that cripples more nodes
             # add attack to Q
             Q.append(Attack_incumb)
-            Y = [1 if v in Attack_incumb else 0 for v in Nodes]
-            X_y.append({v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes})
-            A_y.append({v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes})
+            Y = {v: 1 if v in Attack_incumb else 0 for v in Nodes}
+            X_y.append({v: DAP.addVar(vtype=GRB.BINARY) for v in Y})
+            A_y.append({v: DAP.addVar(vtype=GRB.BINARY) for v in Y})
 
-            c1 = DAP.addConstr(delta <= quicksum(A_y[count][v] for v in Nodes))
-            c3 = DAP.addConstr(quicksum(X_y[count][v] for v in Nodes) <= Lambda)
-            c4 = [DAP.addConstr(A_y[count][v]<=1+Z[v]-Y[v]) for v in Nodes] 
-            c5 = [DAP.addConstr(A_y[count][j]<=A_y[count][i]+X_y[count][j]+Z[j]) for (i,j) in Edges]
+            DeltaConstr = DAP.addConstr(delta <= quicksum(A_y[-1][v] for v in Nodes))
+
+            DefBudget = DAP.addConstr(quicksum(X_y[-1][v] for v in Nodes) <= Lambda)
+
+            SavedNodes = [DAP.addConstr(A_y[-1][v]<=1+Z[v]-Y[v]) for v in Nodes] 
+
+            ViralSpread = [DAP.addConstr(A_y[-1][j]<=A_y[-1][i]+X_y[-1][j]+Z[j]) for (i,j) in Edges]
 
             # Solve model for Protected nodes and objVal
             DAP.optimize()
@@ -66,13 +69,14 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
 
         elif "optimal" in status:
             # the optimal attack has been found and vaccinated against
-            OUTPUT['total time'] = time.time() - startTime
+            OUTPUT['total time'] = round(time.time()-startTime,2)
             OUTPUT['fail'] = False
             OUTPUT['objVal'] = DAP.objVal
-            OUTPUT['Z opt'] = Protected
-            OUTPUT['Y opt'] = Attack_incumb
-            OUTPUT['X opt'] = Defend_incumb
+            OUTPUT['Z_sol'] = Protected
+            OUTPUT['Y_sol'] = Attack_incumb
+            OUTPUT['X_sol'] = Defend_incumb
             OUTPUT['iterations'] = count
+            OUTPUT['saved nodes'] = [v for v in Nodes if A_y[-1][v].x > 0.9]
             return OUTPUT
 
         else:
