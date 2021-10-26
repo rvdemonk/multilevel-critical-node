@@ -35,7 +35,7 @@ def get_paper_stats(number, N, density, Omega, Phi, Lambda):
                 if "#totTm" in line:
                     stats["time"] = float(line.split(" ")[0])
                 if "#fail" in line:
-                    stats["fail"] = line.split(" ")[0]
+                    stats["fail"] = "no" not in line.split(" ")[0]
                 if "Z_dad" in line:
                     stats["Z_sol"] = eval(line.split(" = ")[1])
                 if "Y_dad" in line:
@@ -72,5 +72,3 @@ def plot_graph(nodes, edges, infected=None, saved=None):
     G.add_edges_from(edges)
     nx.draw(G, with_labels=True, font_weight="bold")
     plt.show()
-
-

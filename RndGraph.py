@@ -6,6 +6,7 @@ import os
 
 class RndGraph:
     folder = "./Instances/tables_MNC/"
+
     def __init__(self, N, density, Budgets):
         self.N = N
         self.density = density

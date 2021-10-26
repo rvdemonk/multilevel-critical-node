@@ -20,9 +20,10 @@ Density = range(5, 16)
 #     if results["sols match"]:
 #         correct+=1
 
-        
+
 # print(f"\nResults for N={N}, density={density}, Budets={Budgets}")
 # print(f"Matching sols: {correct} out of 20")
+
 
 def test_solutions(TestBudgets):
     folder = "./Instances/tables_MNC/"
@@ -31,7 +32,7 @@ def test_solutions(TestBudgets):
     for N in Ns:
         for density in Density:
             for Budgets in TestBudgets:
-                name = get_filename2(N,density,Budgets)
+                name = get_filename2(N, density, Budgets)
                 folderpath = folder + name + "/"
                 if not os.path.isdir(folderpath):
                     print(f"{folderpath} is is not a recognised graph structure")
@@ -41,16 +42,11 @@ def test_solutions(TestBudgets):
                     MATCHING_SOLS[name] = 0
                     print("Testing", name)
                     for num in Numbers:
-                        results = test_MCN_single(N,num,density,Budgets)
+                        results = test_MCN_single(N, num, density, Budgets)
                         if results["sols match"]:
-                            MATCHING_SOLS[name]+=1
+                            MATCHING_SOLS[name] += 1
 
     for key in MATCHING_SOLS:
         print(f"\n{key}")
         print("Matching solutions:", MATCHING_SOLS[key])
     return MATCHING_SOLS, Unrecognised
-
-
-
-
-  
