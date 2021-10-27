@@ -48,7 +48,7 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
         )
 
         if "goal" in status:
-            # attack found that cripples more nodes
+            # Attack found that cripples more nodes
             # add attack to Q
             Q.append(Attack_incumb)
             Y = {v: 1 if v in Attack_incumb else 0 for v in Nodes}

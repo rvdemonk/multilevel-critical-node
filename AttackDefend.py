@@ -1,17 +1,13 @@
 from gurobipy import *
-
 from Defend import Defend
-
 
 
 def AP(Nodes, Edges, Phi, Lambda, target):
 
     # (rlxAP)
-
     AP = Model("AttackDefend")
     AP.setParam("OutputFlag", 0)
     AP.setParam("NonConvex", 2)  # for McCormick evenelope
-
 
     # Variables
 
@@ -32,14 +28,14 @@ def AP(Nodes, Edges, Phi, Lambda, target):
             - quicksum(q[v, u] for (v, u) in Edges)
             >= 1
         )
-        for v in Nodes}
+        for v in Nodes
+    }
 
     Constr2 = {
         v: AP.addConstr(p - quicksum(q[u, v] for (u, v) in Edges) >= 0) for v in Nodes
     }
 
     Constr3 = {v: AP.addConstr(gamma[v] + len(Nodes) * y[v] - h[v] >= 0) for v in Nodes}
-
 
     ###### AP Subroutine ######
     best = len(Nodes)
@@ -65,5 +61,5 @@ def AP(Nodes, Edges, Phi, Lambda, target):
         # Add cut
         AP.addConstr(quicksum(y[v] for v in Saved) >= 1)
         CutsAdded += 1
-        
+
     return Infected_best, "optimal", X_best
