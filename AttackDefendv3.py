@@ -4,6 +4,7 @@ from Defendv3 import Defend
 
 def AP(Nodes, Arcs, Phi, Lambda):
     # Value function formulation
+    EPS = 0.0001
     AP = Model('Attack')
     A = {v: AP.addVar() for v in Nodes}
     Y = {v: AP.addVar() for v in Nodes}
@@ -26,30 +27,32 @@ def AP(Nodes, Arcs, Phi, Lambda):
         (u,v): AP.addConstr(A[v]<=A[u]+X[v])
     }
 
+
+    def Callback(model,where):
+        # Branching strategy
+        if where==GRB.Callback.MIPNODE and model.cbGet(GRB.Callback.MIPNODE_STATUS)==GRB.OPTIMAL:
+            # new integer solution found (x*,y*)
+            YV = model.cbGetSolution(Y) #y*
+            YSet = {v for v in YV if YV[v]>0.9}
+            XV = model.cbGetSolution(X)
+            # Is this incumbent solution bilevel feasible? -> solve Defend with y = y*
+            SavedNodes, DefendedNodes = Defend(Nodes,Arcs,YSet,Lambda)
+            Value = len(SavedNodes)
+            if  model.cbGet(GRB.Callback.MIPNODE_OBJBST)+EPS >= Value:
+                # solution is bilevel feasible
+                pass
+            else:
+                # solution is not bilevel feasible
+                pass
+                
+
+        return
+
+
     # relax HPR by removing constr (13)
-    # 
+
     # run Fischetti HPR algo
-    BMP.setParam('LazyConstraints',1)
+    AP.setParam('LazyConstraints',1)
     AP.optimize(Callback)
-    return
-
-
-def Callback(model,where):
-    if where==GRB.Callback.MIPNODE and model.cbGet(GRB.Callback.MIPNODE_STATUS)==GRB.OPTIMAL:
-        # integer solution at current node
-        YV = model.cbGetSolution(Y)
-        YSet = {v for v in YV if YV[v]>0.9}
-        XV = model.cbGetSolution(X)
-        # Compute value function for Y by solving Defend for Y=Y*
-        ValueFunc = Defend(Nodes,Arcs,Yset,Lambda)
-        if dy <= ValueFunc:
-            # current solution is bilevel feasible
-            # update the incumbent and fathom the current node
-            pass
-        else:
-            # if not all int y variables are fixed by branching
-
-            # else
-
 
     return

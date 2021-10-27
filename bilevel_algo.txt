@@ -1,0 +1,17 @@
+General-purpose bilevel Fischetti algo
+
+BILEVEL-ORIENTED BRANCHING STRATEGY W/ BRANCHING PRIORITIES [1]
+-> new integer solution is found (x*,y*)
+    1.is the solution bilevel feasible.
+        -> if so, solve the follower MILP for y = y*
+            - and obtain alternative point (x^,y*) with dy^ = valueFunc
+        -> if dy* > valueFunc, sol is not bilevel feasible
+            - cut using suitable IC.
+    2. new point (x^,y*) is passed to a hoc-hoc feasibility check procedure that
+        verifies its HPR feasibility wrt (2) and cost
+        -> possibly updates incumbent
+
+
+CALLBACK CUTS
+
+
