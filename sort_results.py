@@ -4,4 +4,3 @@ which graph instances return different solutions to those presented
 by the original papyer
 """
 import pandas as pd
-
