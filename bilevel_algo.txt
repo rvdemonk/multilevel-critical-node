@@ -13,5 +13,15 @@ BILEVEL-ORIENTED BRANCHING STRATEGY W/ BRANCHING PRIORITIES [1]
 
 
 CALLBACK CUTS
+Separate procedures implemented for FUB cuts and ICs.
 
+separation of FUB cuts invoked only at the first callback call
+at a given node, since it does not depend on (x*,y*).
+ - only depends on the variable bounds at the given node.
+
+Seperation of ICs is instead active at each callback 
+call.
+ - has a max number of consecutive calls
+ - justified byh quick depreciation of IC benefit and 
+    time consuming nature.
 

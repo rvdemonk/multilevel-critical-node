@@ -72,3 +72,14 @@ def plot_graph(nodes, edges, infected=None, saved=None):
     G.add_edges_from(edges)
     nx.draw(G, with_labels=True, font_weight="bold")
     plt.show()
+
+
+def get_high_traffic_nodes(Nodes, Arcs, Phi):
+    EdgeCount = {v: 0 for v in Nodes}
+    for arc in Arcs:
+        EdgeCount[arc[0]] += 1
+        EdgeCount[arc[1]] += 1
+    Scores = [(EdgeCount[v],v) for v in EdgeCount]
+    Scores.sort(reverse=True)
+    crit_nodes = [score[1] for score in Scores][:Phi]
+    return crit_nodes

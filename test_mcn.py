@@ -138,7 +138,8 @@ def timeout_handler(signum, frame):
 
 def main():
     # run_MCN_budgets([2,2,2])
-    run_MCN_all_nums(40, 9, [2, 2, 2])
+    # run_MCN_all_nums(40, 9, [2, 2, 2])
+    run_MCN_single(20,'001',5,[1,1,1])
 
 
 if __name__ == "__main__":

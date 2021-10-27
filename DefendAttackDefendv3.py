@@ -7,13 +7,12 @@ from AttackDefendv3 import AP
 import time
 
 
+
 def MCN(Nodes, Edges, Omega, Phi, Lambda):
     startTime = time.time()
     MAX_ITERATIONS = 50
-
     DAP = Model("ProtectAttackDefend")
     DAP.setParam("OutputFlag", 0)
-
     # Global variables
     Z = {v: DAP.addVar(vtype=GRB.BINARY) for v in Nodes}
     delta = DAP.addVar()
@@ -41,7 +40,7 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
         Edges_reduced = [
             e for e in Edges if e[0] not in Protected and e[1] not in Protected
         ]
-
+    
         # Find an attack against unprotected nodes that results in less
         # than attack_target nodes saved
         Attack_incumb, status, Defend_incumb = AP(
