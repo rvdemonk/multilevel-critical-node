@@ -1,5 +1,5 @@
 from pandas.core.indexing import need_slice
-from DefendAttackDefend2 import MCN
+from DefendAttackDefend import MCN
 from helpers import get_graph_data, get_paper_stats, get_filename, get_filename2
 from data import graph_base_name, Ns, Density, BudgetSet, Numbers
 import pandas as pd

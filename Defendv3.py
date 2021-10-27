@@ -1,3 +1,8 @@
+"""
+@lewisthompson
+Reformulation to include general purpose bilevel solver method
+"""
+
 from gurobipy import *
 
 
@@ -21,7 +26,7 @@ def Defend(Nodes, Edges, Infected, Lambda):
     DefendBudget = D.addConstr(quicksum(X[v] for v in Nodes) <= Lambda)
     ViralSpread = {v: D.addConstr(A[v] <= 1 - Y[v]) for v in Nodes}
     SavedNodes = {(u, v): D.addConstr(A[v] <= A[u] + X[v]) for (u, v) in Edges}
-
+    
     D.optimize()
 
     # stats
