@@ -31,18 +31,23 @@ def run_MCN_single(N, number, density, Budgets):
     Omega, Phi, Lambda = Budgets[0], Budgets[1], Budgets[2]
     graph_name = get_filename(N, density, Omega, Phi, Lambda)
     nodes, edges = get_graph_data(number, N, density, Omega, Phi, Lambda)
-
-    print(f"\nTesting {graph_name}_{number}")
-    OUTPUTV2 = MCN(nodes, edges, Omega, Phi, Lambda)
-    PAPER = get_paper_stats(number, N, density, Omega, Phi, Lambda)
     results = {}
     results["graph name"] = graph_name
+    print(f"\nTesting {graph_name}_{number}")
+    try:
+        OUTPUTV2 = MCN(nodes, edges, Omega, Phi, Lambda)
+    except:
+        # MCN timed out
+        OUTPUTV2 = {'fail': True}
+
+    PAPER = get_paper_stats(number, N, density, Omega, Phi, Lambda)
+
     try:
         results["og fail"] = PAPER["fail"]
     except KeyError:
         PAPER["fail"] = True
 
-    results["v2 fail"] = OUTPUTV2["fail"]
+
     if not PAPER["fail"] and not OUTPUTV2["fail"]:
         results["sols match"] = PAPER["solution"] == OUTPUTV2["objVal"]
         results["v2 faster"] = OUTPUTV2["total time"] < PAPER["time"]

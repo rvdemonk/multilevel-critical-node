@@ -4,8 +4,11 @@
 from gurobipy import *
 from AttackDefend import AP
 import time
+from timeout_custom import timeout
 
+TIMEOUT = 10*60
 
+@timeout(TIMEOUT)
 def MCN(Nodes, Edges, Omega, Phi, Lambda):
     startTime = time.time()
     MAX_ITERATIONS = 50
