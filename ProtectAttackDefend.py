@@ -1,12 +1,15 @@
 """
 @lewisthompson
+MCNv2 implemented based on MCN from Baggio et al paper
+Implemented for math4202 project.
 """
 from gurobipy import *
 from AttackDefend import AP
 import time
 from timeout_custom import timeout
 
-TIMEOUT = 10*60
+TIMEOUT = 10 * 60
+
 
 @timeout(TIMEOUT)
 def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
@@ -22,16 +25,23 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
 
     DAP.setObjective(delta, GRB.MAXIMIZE)
 
+    # protection budget
     ProtBudget = DAP.addConstr(quicksum(Z[v] for v in Nodes) <= Omega)
 
     # --- MCNv2 routine ---#
-    count = 0
-    OUTPUT = {}
+    count = 0  # iteration count
+    OUTPUT = {}  # store output stats
     best_saved = len(Nodes)  # start with every node saved
-    Protected = set()
-    Q = []  # stores attack vectors
+    Protected = set()  # protection strategy
+    # store attack vectors as theyre generated
+    Q = []
+    # store variables corresponding to each attack scenario
     X_y = []
     A_y = []
+    # data structs to keep stats on AP calls
+    AP_iterations = []
+    AP_cuts_added
+
     while True:
         print(f"iteration {count}...")
         if count > MAX_ITERATIONS:
@@ -39,6 +49,7 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
             return OUTPUT
 
         attack_target = best_saved - len(Protected)
+        # compute new network topology following node vaccination
         Nodes_reduced = [v for v in Nodes if v not in Protected]
         Edges_reduced = [
             e for e in Edges if e[0] not in Protected and e[1] not in Protected
@@ -46,9 +57,12 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
 
         # Find an attack against unprotected nodes that results in less
         # than attack_target nodes saved
-        Attack_incumb, status, Defend_incumb = AP(
+        Attack_incumb, status, Defend_incumb, AP_iter_count, CutsAdded = AP(
             Nodes_reduced, Edges_reduced, Phi, Lambda, attack_target
         )
+        print(f"Attack {count} found")
+        AP_iterations.append(AP_iter_count)
+        AP_cuts_added.append(CutsAdded)
 
         if "goal" in status:
             # Attack found that cripples more nodes
@@ -69,7 +83,7 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
                 for (i, j) in Edges
             ]
 
-            # Solve model for Protected nodes and objVal
+            # Solve model for new protection strategy and objVal
             DAP.optimize()
             Protected = set(v for v in Nodes if Z[v].x > 0.9)
             best_saved = DAP.objVal
@@ -83,13 +97,16 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
             OUTPUT["Z_sol"] = Protected
             OUTPUT["Y_sol"] = Attack_incumb
             OUTPUT["X_sol"] = Defend_incumb
-            OUTPUT["iterations"] = count
             OUTPUT["saved nodes"] = [v for v in Nodes if A_y[-1][v].x > 0.9]
-
-            VAR_COUNT = {}
-            # VAR_COUNT['A_count'] =
+            OUTPUT["iterations"] = count
+            OUTPUT["AP iterations"] = AP_iterations
+            OUTPUT["AP cuts added"] = AP_cuts_added
+            OUTPUT["Q size"] = len(Q)
+            OUTPUT["Var count"] = DAP.NumVars
+            OUTPUT["Constr count"] = DAP.NumConstrs
             return OUTPUT
 
         else:
+            # something has gone seriously wrong
             print("!!! Error has occurred !!!")
     # ------------------------------------------------------------------------#

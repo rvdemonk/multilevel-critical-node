@@ -7,10 +7,9 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     # (rlxAP)
     AP = Model("AttackDefend")
     AP.setParam("OutputFlag", 0)
-    AP.setParam("NonConvex", 2)  # for McCormick evenelope
-    # AP.setParam('TimeLimit', 3)
+    AP.setParam("NonConvex", 2)  # for McCormick envelope technique
+    
     # Variables
-
     y = {v: AP.addVar(vtype=GRB.BINARY) for v in Nodes}
     # y = {v: A.addVar() for v in Nodes} # complete relaxation still didnt solve
     h = {v: AP.addVar(lb=0) for v in Nodes}
@@ -19,8 +18,10 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     gamma = {v: AP.addVar(lb=0) for v in Nodes}
     AP.setObjective(Lambda * p + quicksum(gamma[v] for v in Nodes), GRB.MINIMIZE)
 
-    # Constraints
+    # Attacker budget constraint
     AttackBudget = AP.addConstr(quicksum(y[v] for v in Nodes) <= Phi)
+
+    # Dual constraints
     Constr1 = {
         v: AP.addConstr(
             h[v]
@@ -43,9 +44,10 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     X_best = []
     status = 0
     CutsAdded = 0
-
+    AP_iter_count = 0
     while True:
         AP.optimize()
+        AP_iter_count += 1
         if AP.status == GRB.INFEASIBLE:
             break
         Infected = set(v for v in Nodes if y[v].x > 0.9)
@@ -62,4 +64,4 @@ def AP(Nodes, Edges, Phi, Lambda, target):
         AP.addConstr(quicksum(y[v] for v in Saved) >= 1)
         CutsAdded += 1
 
-    return Infected_best, "optimal", X_best
+    return Infected_best, "optimal", X_best, AP_iter_count, CutsAdded
