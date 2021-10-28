@@ -1,14 +1,12 @@
 from pandas.core.indexing import need_slice
 from DefendAttackDefend2 import MCN
-from helpers import get_graph_data, get_paper_stats, get_filename, get_filename2
+from helpers import *
 from data import graph_base_name, Ns, Density, BudgetSet, Numbers
 import pandas as pd
 from datetime import datetime
 import os
 import signal
 
-
-RESULTS_PATH = "./results_v2/"
 
 
 def get_timestamp():
@@ -41,9 +39,9 @@ def run_MCN_single(N, number, density, Budgets):
     results["graph name"] = graph_name
     try:
         results["og fail"] = PAPER["fail"]
-    except:
-        KeyError()
+    except KeyError:
         PAPER["fail"] = True
+
     results["v2 fail"] = OUTPUTV2["fail"]
     if not PAPER["fail"] and not OUTPUTV2["fail"]:
         results["sols match"] = PAPER["solution"] == OUTPUTV2["objVal"]
@@ -101,6 +99,17 @@ def run_MCN_budgets(Budgets, timelimit=False):
                 Data, timeouts = run_MCN_all_nums(N, dens, Budgets, timelimit=timelimit)
                 TIMEOUTS[graph_name] = timeouts
     return TIMEOUTS
+    
+
+def run_MCN_density(density):
+    for N in Ns:
+        for Budgets in BudgetSet:
+            graph_name = get_filename2(N, density, Budgets)
+            path = f"./Instances/tables_MNC/{graph_name}"
+            if os.path.exists(path):
+                Data, timeouts = run_MCN_all_nums(N, density, Budgets, timelimit=False)
+    return Data            
+
 
 
 def get_v2_result(N, density, Budgets):
@@ -138,7 +147,8 @@ def timeout_handler(signum, frame):
 
 def main():
     # run_MCN_budgets([2,2,2])
-    run_MCN_all_nums(40, 9, [2, 2, 2])
+    # run_MCN_density(5)
+    run_MCN_all_nums(60,5,[1,3,3])
 
 
 if __name__ == "__main__":

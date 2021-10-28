@@ -5,6 +5,8 @@ import networkx as nx
 from data import *
 
 
+RESULTS_PATH = "./results_v2/"
+
 def get_filename(N, density, Omega, Phi, Lambda):
     # takes budgets as three integers
     density = f"0{density}" if int(density) < 10 else density
@@ -72,3 +74,12 @@ def plot_graph(nodes, edges, infected=None, saved=None):
     G.add_edges_from(edges)
     nx.draw(G, with_labels=True, font_weight="bold")
     plt.show()
+
+
+def extract_rndgraph_param(graph_name):
+    density = graph_name.split("-")[0][-2:]
+    N = graph_name.split("-")[1].split("_")[0]
+    BudgetsStrings = graph_name.split("_")[1].split("-")
+    Budgets = [int(budget) for budget in BudgetsStrings]
+    return N, density, Budgets
+

@@ -8,7 +8,7 @@ def AP(Nodes, Edges, Phi, Lambda, target):
     AP = Model("AttackDefend")
     AP.setParam("OutputFlag", 0)
     AP.setParam("NonConvex", 2)  # for McCormick evenelope
-
+    # AP.setParam('TimeLimit', 3)
     # Variables
 
     y = {v: AP.addVar(vtype=GRB.BINARY) for v in Nodes}
