@@ -60,7 +60,6 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
         Attack_incumb, status, Defend_incumb, AP_iter_count, CutsAdded = AP(
             Nodes_reduced, Edges_reduced, Phi, Lambda, attack_target
         )
-        print(f"--> attack {count} found")
         AP_iterations.append(AP_iter_count)
         AP_cuts_added.append(CutsAdded)
 

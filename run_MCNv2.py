@@ -4,7 +4,7 @@
 Central command module for running the MCNv2 algorithm on the provided
 rndgraph instances located in ./Instances/tables_MNC/
 """
-from ProtectAttackDefend import MCNv2
+from ProtectAttackDefend import MCNv2, TIMEOUT
 from helpers import *
 from data import graph_base_name, Ns, Density, BudgetSet, Numbers
 import pandas as pd
@@ -40,12 +40,6 @@ def run_MCNv2_single(N, number, density, Budgets):
     except KeyError:
         PAPER["fail"] = True
 
-    if not PAPER["fail"]:
-        results["v2 time"] = OUTPUTV2["total time"]
-        results["v2 obj"] = OUTPUTV2["objVal"]
-        results["v2 X"] = OUTPUTV2["X_sol"]
-        results["v2 Y"] = OUTPUTV2["Y_sol"]
-
 
     if not PAPER["fail"] and not OUTPUTV2["fail"]:
         results["sols match"] = PAPER["solution"] == OUTPUTV2["objVal"]
@@ -61,7 +55,22 @@ def run_MCNv2_single(N, number, density, Budgets):
         results["v2 Y"] = OUTPUTV2["Y_sol"]
         results["og Z"] = PAPER["Z_sol"]
         results["v2 Z"] = OUTPUTV2["Z_sol"]
+        results["v2 var count"] = OUTPUT["Var count"]
+        results["v2 constr count"] = OUTPUT["Constr count"]
+        results["v2 Q size"] = OUTPUT["Q size"]
+
         # results["og last AD Tm"] = PAPER["last_AD_time"]
+
+
+    elif not OUTPUTV2["fail"]:
+        results["v2 time"] = OUTPUTV2["total time"]
+        results["v2 obj"] = OUTPUTV2["objVal"]
+        results["v2 X"] = OUTPUTV2["X_sol"]
+        results["v2 Y"] = OUTPUTV2["Y_sol"]
+        results["v2 Z"] = OUTPUTV2["Z_sol"]        
+        results["v2 var count"] = OUTPUT["Var count"]
+        results["v2 constr count"] = OUTPUT["Constr count"]
+        results["v2 Q size"] = OUTPUT["Q size"]
     return results
 
 
@@ -134,7 +143,8 @@ def main():
     ## this would run MCNv2 on all instances with a density of 5
     # run_MCNv2_density(5)
 
-    run_MCNv2_all_nums(100, 5, [1, 3,3])
+    run_MCNv2_all_nums(100, 5, [2,2,2])
+    
 
 
 if __name__ == "__main__":
