@@ -1,3 +1,9 @@
+""" 
+Data stub for the MCN algorithm package.
+Outlines parameters of randomgraph instances that are the
+subject of experiments.
+"""
+
 TABLES = ["MNC", "MIX", "HIB"]
 folder = "./Instances/tables_MNC/"
 

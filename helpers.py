@@ -1,8 +1,65 @@
+""" 
+@lewisthompson
+
+Utilities module for the MCNv2 algorithm.
+"""
 import os
 import random
 import matplotlib.pyplot as plt
-import networkx as nx
 from data import *
+import pandas as pd
+from datetime import datetime
+
+
+RESULTS_PATH = "./results_v2/"
+
+
+def get_timestamp():
+    timestamp = str(datetime.now()).replace(" ", "_").split(".")[0]
+    return timestamp.replace("/", "-").replace(":", "-")
+
+
+def export_results(Results, graph_name):
+    """
+    Exports csv indexed by the number of the graph instance, 1-20
+    """
+    data = pd.DataFrame(Results, index=Numbers)
+    timestamp = get_timestamp()
+    path = RESULTS_PATH + f"{graph_name}/"
+    if not os.path.exists(path):
+        os.mkdir(path)
+    data.to_csv(os.path.join(path, rf"{graph_name}_@{timestamp}.csv"))
+    print("*" * 65 + f"\nExporting of {graph_name} results complete.\n" + "*" * 65)
+
+
+def get_v2_result(N, density, Budgets):
+    """
+    Returns most recently exported csv of graph structure
+    as a dataframe
+    """
+    graph_name = get_filename2(N, density, Budgets)
+    if graph_name not in os.listdir(RESULTS_PATH):
+        raise Exception(f"No results for graph {graph_name}")
+    else:
+        path = RESULTS_PATH + graph_name + "/"
+        file = os.listdir(RESULTS_PATH + graph_name + "/")[-1]
+        data = pd.read_csv(path + file)
+    return data
+
+
+def count_matching_solutions():
+    """
+    Exports a tabulated count of the number of objective solutions
+    from MCNv2 that match those from the Baggio et al paper results.
+    """
+    MATCHES = {}
+    for graph in os.listdir(RESULTS_PATH):
+        path = RESULTS_PATH + graph + "/"
+        file = os.listdir(RESULTS_PATH + graph + "/")[-1]
+        data = pd.read_csv(path + file)
+        MATCHES[graph] = sum(int(result) for result in data["sols match"])
+    MATCHES.to_csv(RESULTS_PATH + "sol_check-" + get_timestamp() + ".csv")
+    return MATCHES
 
 
 def get_filename(N, density, Omega, Phi, Lambda):
@@ -51,7 +108,7 @@ def get_paper_stats(number, N, density, Omega, Phi, Lambda):
 
 def get_graph_data(number, N, density, Omega, Phi, Lambda):
     """
-    Retrieves graph data from ./Instances/tables_MNC/
+    Retrieves graph topology data from ./Instances/tables_MNC/
     Returns V, A
     """
     name = get_filename(N, density, Omega, Phi, Lambda)
@@ -66,9 +123,13 @@ def get_graph_data(number, N, density, Omega, Phi, Lambda):
     return V, A
 
 
-def plot_graph(nodes, edges, infected=None, saved=None):
-    G = nx.Graph()
-    G.add_nodes_from(nodes)
-    G.add_edges_from(edges)
-    nx.draw(G, with_labels=True, font_weight="bold")
-    plt.show()
+def extract_rndgraph_param(graph_name):
+    """
+    Given a name of a random graph instance, returns the parameters
+    of the instance.
+    """
+    density = graph_name.split("-")[0][-2:]
+    N = graph_name.split("-")[1].split("_")[0]
+    BudgetsStrings = graph_name.split("_")[1].split("-")
+    Budgets = [int(budget) for budget in BudgetsStrings]
+    return N, density, Budgets
