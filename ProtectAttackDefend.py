@@ -40,7 +40,7 @@ def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
     A_y = []
     # data structs to keep stats on AP calls
     AP_iterations = []
-    AP_cuts_added
+    AP_cuts_added = []
 
     while True:
         print(f"iteration {count}...")

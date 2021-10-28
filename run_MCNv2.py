@@ -16,7 +16,7 @@ import signal
 
 
 def run_MCNv2_single(N, number, density, Budgets):
-    """ 
+    """
     Runs the MCNv2 algorithm on a single instance of a rndgrpah structure.
     Instance number specified by number parameter.
     """
@@ -26,14 +26,17 @@ def run_MCNv2_single(N, number, density, Budgets):
     results = {}
     results["graph name"] = graph_name
     print(f"\nTesting {graph_name}_{number}")
+
+    # try first, except timeout
     try:
         OUTPUTV2 = MCNv2(nodes, edges, Omega, Phi, Lambda)
     except:
         # MCNv2 timed out
         OUTPUTV2 = {"fail": True}
 
+    # get paper results for this instance
     PAPER = get_paper_stats(number, N, density, Omega, Phi, Lambda)
-
+    # detect if the paper experiment failed on this instance
     try:
         results["og fail"] = PAPER["fail"]
     except KeyError:
@@ -102,7 +105,7 @@ def run_MCNv2_budgets(Budgets, timelimit=False):
 
 
 def run_MCNv2_density(density):
-    """ 
+    """
     Runs MCNv2 on all topologies and budget sets with the given density.
     """
     for N in Ns:
@@ -125,8 +128,8 @@ def main():
 
     ## this would run MCNv2 on all instances with a density of 5
     # run_MCNv2_density(5)
-    
-    run_MCNv2_all_nums(60, 5, [1, 3, 3])
+
+    run_MCNv2_all_nums(20, 5, [1, 1, 1])
 
 
 if __name__ == "__main__":

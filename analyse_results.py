@@ -52,7 +52,9 @@ def compile_average_results():
     return data
 
 
-data = compile_average_results()
+def main():
+    compile_average_results()
 
-for i in range(len(data["name"])):
-    print(f"{data['name'][i]} : average time = {data['avg v2 time diff'][i]}")
+
+if __name__ == "__main__":
+    main()

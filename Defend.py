@@ -3,9 +3,11 @@ from gurobipy import *
 
 def Defend(Nodes, Edges, Infected, Lambda):
     """
-    * Infected - binary vector; Infected_i = 1 if node i is infected, 0 otherwise.
-    * Lambda - Defence budget
+    Defence problem (fence problem)
+    Infected: set of indices of nodes infected by given attack strategy.
+    Lambda: Defence budget
     """
+    # Create attack vector from set of infected nodes taken as input
     Y = {v: 1 if v in Infected else 0 for v in Nodes}
 
     D = Model("Defend")
@@ -24,8 +26,9 @@ def Defend(Nodes, Edges, Infected, Lambda):
 
     D.optimize()
 
-    # stats
+    # Saved nodes
     Saved = set(v for v in Nodes if A[v].x > 0.9)
+    # Defence strategy
     Defended = set(v for v in Nodes if X[v].x > 0.9)
 
     return Saved, Defended
