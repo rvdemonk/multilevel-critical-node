@@ -9,7 +9,7 @@ from timeout_custom import timeout
 TIMEOUT = 10*60
 
 @timeout(TIMEOUT)
-def MCN(Nodes, Edges, Omega, Phi, Lambda):
+def MCNv2(Nodes, Edges, Omega, Phi, Lambda):
     startTime = time.time()
     MAX_ITERATIONS = 50
 
@@ -24,7 +24,7 @@ def MCN(Nodes, Edges, Omega, Phi, Lambda):
 
     ProtBudget = DAP.addConstr(quicksum(Z[v] for v in Nodes) <= Omega)
 
-    # --- MCN routine ---#
+    # --- MCNv2 routine ---#
     count = 0
     OUTPUT = {}
     best_saved = len(Nodes)  # start with every node saved

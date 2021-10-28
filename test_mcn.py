@@ -1,5 +1,5 @@
 from pandas.core.indexing import need_slice
-from DefendAttackDefend2 import MCN
+from DefendAttackDefend2 import MCNv2
 from helpers import *
 from data import graph_base_name, Ns, Density, BudgetSet, Numbers
 import pandas as pd
@@ -27,7 +27,7 @@ def export_results(Results, graph_name):
     print("*" * 65 + f"\nExporting of {graph_name} results complete.\n" + "*" * 65)
 
 
-def run_MCN_single(N, number, density, Budgets):
+def run_MCNv2_single(N, number, density, Budgets):
     Omega, Phi, Lambda = Budgets[0], Budgets[1], Budgets[2]
     graph_name = get_filename(N, density, Omega, Phi, Lambda)
     nodes, edges = get_graph_data(number, N, density, Omega, Phi, Lambda)
@@ -35,9 +35,9 @@ def run_MCN_single(N, number, density, Budgets):
     results["graph name"] = graph_name
     print(f"\nTesting {graph_name}_{number}")
     try:
-        OUTPUTV2 = MCN(nodes, edges, Omega, Phi, Lambda)
+        OUTPUTV2 = MCNv2(nodes, edges, Omega, Phi, Lambda)
     except:
-        # MCN timed out
+        # MCNv2 timed out
         OUTPUTV2 = {'fail': True}
 
     PAPER = get_paper_stats(number, N, density, Omega, Phi, Lambda)
@@ -66,9 +66,9 @@ def run_MCN_single(N, number, density, Budgets):
     return results
 
 
-def run_MCN_all_nums(N, density, Budgets, timelimit=False):
+def run_MCNv2_all_nums(N, density, Budgets, timelimit=False):
     """
-    Tests MCN against results from the paper for all 20 instances
+    Tests MCNv2 against results from the paper for all 20 instances
     of the given parameters.
     """
     Data = []
@@ -76,7 +76,7 @@ def run_MCN_all_nums(N, density, Budgets, timelimit=False):
     if not timelimit:
         for num in Numbers:
             print(f"\n--> TESTING GRAPH {num}")
-            results = run_MCN_single(N, num, density, Budgets)
+            results = run_MCNv2_single(N, num, density, Budgets)
             Data.append(results)
     else:  ## broken
         signal.signal(signal.SIGALRM, timeout_handler)
@@ -84,7 +84,7 @@ def run_MCN_all_nums(N, density, Budgets, timelimit=False):
             print(f"\n--> TESTING GRAPH {num}")
             signal.alarm(timelimit)
             try:
-                results = run_MCN_single(N, num, density, Budgets)
+                results = run_MCNv2_single(N, num, density, Budgets)
                 Data.append(results)
             except Exception:
                 continue
@@ -93,7 +93,7 @@ def run_MCN_all_nums(N, density, Budgets, timelimit=False):
     return Data, Timeouts
 
 
-def run_MCN_budgets(Budgets, timelimit=False):
+def run_MCNv2_budgets(Budgets, timelimit=False):
     # tests against all rndgraph instances with the given budget
     TIMEOUTS = {}
     for N in Ns:
@@ -101,18 +101,18 @@ def run_MCN_budgets(Budgets, timelimit=False):
             graph_name = get_filename2(N, dens, Budgets)
             path = f"./Instances/tables_MNC/{graph_name}"
             if os.path.exists(path):
-                Data, timeouts = run_MCN_all_nums(N, dens, Budgets, timelimit=timelimit)
+                Data, timeouts = run_MCNv2_all_nums(N, dens, Budgets, timelimit=timelimit)
                 TIMEOUTS[graph_name] = timeouts
     return TIMEOUTS
     
 
-def run_MCN_density(density):
+def run_MCNv2_density(density):
     for N in Ns:
         for Budgets in BudgetSet:
             graph_name = get_filename2(N, density, Budgets)
             path = f"./Instances/tables_MNC/{graph_name}"
             if os.path.exists(path):
-                Data, timeouts = run_MCN_all_nums(N, density, Budgets, timelimit=False)
+                Data, timeouts = run_MCNv2_all_nums(N, density, Budgets, timelimit=False)
     return Data            
 
 
@@ -151,9 +151,9 @@ def timeout_handler(signum, frame):
 
 
 def main():
-    # run_MCN_budgets([2,2,2])
-    # run_MCN_density(5)
-    run_MCN_all_nums(60,5,[1,3,3])
+    # run_MCNv2_budgets([2,2,2])
+    # run_MCNv2_density(5)
+    run_MCNv2_all_nums(60,5,[1,3,3])
 
 
 if __name__ == "__main__":

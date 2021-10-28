@@ -1,5 +1,5 @@
 """
-Object structure for graph instance to be used in MCN.
+Object structure for graph instance to be used in MCNv2.
 """
 import os
 
