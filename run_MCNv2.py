@@ -4,8 +4,6 @@
 Central command module for running the MCNv2 algorithm on the provided
 rndgraph instances located in ./Instances/tables_MNC/
 """
-
-from pandas.core.indexing import need_slice
 from ProtectAttackDefend import MCNv2
 from helpers import *
 from data import graph_base_name, Ns, Density, BudgetSet, Numbers
@@ -41,6 +39,13 @@ def run_MCNv2_single(N, number, density, Budgets):
         results["og fail"] = PAPER["fail"]
     except KeyError:
         PAPER["fail"] = True
+
+    if not PAPER["fail"]:
+        results["v2 time"] = OUTPUTV2["total time"]
+        results["v2 obj"] = OUTPUTV2["objVal"]
+        results["v2 X"] = OUTPUTV2["X_sol"]
+        results["v2 Y"] = OUTPUTV2["Y_sol"]
+
 
     if not PAPER["fail"] and not OUTPUTV2["fail"]:
         results["sols match"] = PAPER["solution"] == OUTPUTV2["objVal"]
@@ -129,7 +134,7 @@ def main():
     ## this would run MCNv2 on all instances with a density of 5
     # run_MCNv2_density(5)
 
-    run_MCNv2_all_nums(20, 5, [1, 1, 1])
+    run_MCNv2_all_nums(100, 5, [1, 3,3])
 
 
 if __name__ == "__main__":
