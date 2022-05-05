@@ -1,4 +1,4 @@
-# multilevel-critical-node-problem
+# Multilevel critical node problem
 
 Implementation of the multilevel approach to the critical node problem outlined in the paper by A. Baggio et al: https://pubsonline.informs.org/doi/abs/10.1287/opre.2020.2014
 
@@ -29,4 +29,4 @@ Datasets found in Instances folder.
 
 Results of this implementation (v2) for respective instances found in results_v2 folder, nested within folder bearing name of graph structure of dataset.
 
-Summaries of results and benchmark comparisons against the results of Baggio et al can be found in results_summary.csv
+Summaries of results and benchmark comparisons against the results of Baggio et al can be found in results_summary.csv 
